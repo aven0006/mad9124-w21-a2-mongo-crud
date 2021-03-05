@@ -4,16 +4,24 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "MAD9124",
     "W21"
   ],
-  "author": "",
+  "author": "Stive Avendaño Zambrano <aven0006@algonquinlive.com>",
   "contributors": [
     "Robert McKenney <mckennr@algonquincollege.com>"
   ],
   "license": "ISC",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.11.19"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
 }
