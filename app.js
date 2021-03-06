@@ -1,29 +1,17 @@
-'use strict';
+import express from 'express';
+import morgan from 'morgan';
+import sanitizeMongo from 'express-mongo-sanitize';
+import connectDB from './startup/connectDB.js';
+import coursesRouter from './routes/courses.js';
+import studentsRouter from './routes/students.js';
 
-const mongoose = require('mongoose');
-
-mongoose
-  .connect('mongodb://localhost:27017/cListR', {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true
-  })
-  .then(() => console.log('Connected to MongoDB ...'))
-  .catch(error => {
-    console.error('Problem connecting to MongoDB ...', error.message);
-    process.exit(1);
-  });
-
-const morgan = require('morgan');
-const express = require('express');
 const app = express();
 
+connectDB();
 app.use(morgan('tiny'));
 app.use(express.json());
-app.use('/api/courses', require('./routes/courses'));
-app.use('/api/students', require('./routes/students'));
+app.use(sanitizeMongo());
+app.use('/api/courses', coursesRouter);
+app.use('/api/students', studentsRouter);
 
-const port = process.env.PORT || 3030;
-
-app.listen(port, () => console.log(`HTTP server listening on port ${port} ...`));
+export default app;

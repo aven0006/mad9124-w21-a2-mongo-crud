@@ -1,21 +1,32 @@
-const Student = require('../models/Student');
-const router = require('express').Router();
+import express from 'express';
+import sanitizeBody from '../middleware/sanitizeBody.js';
+import Student from '../models/Student.js';
+
+const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const students = await Student.find();
-
-  res.send({ data: students });
+  try {
+    const students = await Student.find();
+  
+    res.send({ data: students });
+  } catch (error) {
+    sendResourceNotFound(req, res);
+  }
 });
 
-router.post('/', async (req, res) => {
-  let attributes = req.body;
-
-  delete attributes._id;
-
-  const newStudent = new Student(attributes);
-
-  await newStudent.save();
-  res.status(201).send({ data: newStudent });
+router.post('/', sanitizeBody, async (req, res) => {
+  try {
+    let attributes = req.sanitizedBody;
+  
+    delete attributes._id;
+  
+    const newStudent = new Student(attributes);
+  
+    await newStudent.save();
+    res.status(201).send({ data: newStudent });
+  } catch (error) {
+    sendResourceNotFound(req, res);
+  }
 });
 
 router.get('/:id', async (req, res) => {
@@ -32,9 +43,9 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', sanitizeBody, async (req, res) => {
   try {
-    const { _id, ...theRest } = req.body;
+    const { _id, ...theRest } = req.sanitizedBody;
     const student = await Student.findByIdAndUpdate(
       req.params.id,
       {
@@ -57,9 +68,9 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', sanitizeBody, async (req, res) => {
   try {
-    const { _id, ...theRest } = req.body;
+    const { _id, ...theRest } = req.sanitizedBody;
     const student = await Student.findByIdAndUpdate(
       req.params.id,
       {
@@ -109,4 +120,4 @@ function sendResourceNotFound(req, res) {
   });
 }
 
-module.exports = router;
+export default router;

@@ -1,21 +1,32 @@
-const Course = require('../models/Course');
-const router = require('express').Router();
+import express from 'express';
+import sanitizeBody from '../middleware/sanitizeBody.js';
+import Course from '../models/Course.js';
+
+const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const courses = await Course.find();
-
-  res.send({ data: courses });
+  try {
+    const courses = await Course.find();
+  
+    res.send({ data: courses });
+  } catch (error) {
+    sendResourceNotFound(req, res);
+  }
 });
 
-router.post('/', async (req, res) => {
-  let attributes = req.body;
-
-  delete attributes._id;
-
-  const newCourse = new Course(attributes);
-
-  await newCourse.save();
-  res.status(201).send({ data: newCourse });
+router.post('/', sanitizeBody, async (req, res) => {
+  try {
+    let attributes = req.sanitizedBody;
+  
+    delete attributes._id;
+  
+    const newCourse = new Course(attributes);
+  
+    await newCourse.save();
+    res.status(201).send({ data: newCourse });
+  } catch (error) {
+    sendResourceNotFound(req, res);
+  }
 });
 
 router.get('/:id', async (req, res) => {
@@ -32,9 +43,9 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', sanitizeBody, async (req, res) => {
   try {
-    const { _id, ...theRest } = req.body;
+    const { _id, ...theRest } = req.sanitizedBody;
     const course = await Course.findByIdAndUpdate(
       req.params.id,
       {
@@ -57,9 +68,9 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', sanitizeBody, async (req, res) => {
   try {
-    const { _id, ...theRest } = req.body;
+    const { _id, ...theRest } = req.sanitizedBody;
     const course = await Course.findByIdAndUpdate(
       req.params.id,
       {
@@ -109,4 +120,4 @@ function sendResourceNotFound(req, res) {
   });
 }
 
-module.exports = router;
+export default router;

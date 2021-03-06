@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-const Student = require('./Student');
+import mongoose from 'mongoose';
+import Student from './Student.js';
+
 const schema = new mongoose.Schema({
   code: String,
   title: String,
@@ -9,4 +10,4 @@ const schema = new mongoose.Schema({
 });
 const Model = mongoose.model('Course', schema);
 
-module.exports = Model;
+export default Model;
