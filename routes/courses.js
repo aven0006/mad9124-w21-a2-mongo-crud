@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
   
     res.send({ data: courses });
   } catch (error) {
-    sendResourceNotFound(req, res);
+    validateStatusError(req, res, error);
   }
 });
 
@@ -25,7 +25,7 @@ router.post('/', sanitizeBody, async (req, res) => {
     await newCourse.save();
     res.status(201).send({ data: newCourse });
   } catch (error) {
-    sendResourceNotFound(req, res);
+    validateStatusError(req, res, error);
   }
 });
 
@@ -39,7 +39,7 @@ router.get('/:id', async (req, res) => {
   
     res.send({ data: course });
   } catch (error) {
-    sendResourceNotFound(req, res);
+    validateStatusError(req, res, error);
   }
 });
 
@@ -64,7 +64,7 @@ router.patch('/:id', sanitizeBody, async (req, res) => {
   
     res.send({ data: course });
   } catch (error) {
-    sendResourceNotFound(req, res);
+    validateStatusError(req, res, error);
   }
 });
 
@@ -90,7 +90,7 @@ router.put('/:id', sanitizeBody, async (req, res) => {
   
     res.send({ data: course });
   } catch (error) {
-    sendResourceNotFound(req, res);
+    validateStatusError(req, res, error);
   }
 });
 
@@ -104,9 +104,25 @@ router.delete('/:id', async (req, res) => {
   
     res.send({ data: course });
   } catch (error) {
-    sendResourceNotFound(req, res);
+    validateStatusError(req, res, error);
   }
 });
+
+function validateStatusError(req, res, error) {
+  if (error.name === 'ValidationError') {
+    return res.status(422).send({
+      errors: [
+        {
+          status: '422',
+          title: 'Validation error',
+          description: `${error.message}`
+        }
+      ]
+    });
+  }
+
+  sendResourceNotFound(req, res);
+}
 
 function sendResourceNotFound(req, res) {
   res.status(404).send({
